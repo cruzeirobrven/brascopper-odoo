@@ -16,9 +16,9 @@ echo ">>> 2/4 Sync PDD (via comando remoto, se disponível)"
 echo "  (opcional - rodar manualmente no Windows: py manage.py sync_all)"
 echo ""
 
-# 3. Atualiza legacy_proda com preços de notas de compra (se tiver)
+# 3. Preços de notas de compra (COMCIT → standard_price)
 echo ">>> 3/4 Preços de Notas de Compra"
-echo "  (a ser implementado via extração das tabelas prec_sqlserver_com*)"
+python3 /opt/nfelazarus/scripts/agentes/extrair_precos_compras.py
 echo ""
 
 # 4. Recalcula custos no Odoo
