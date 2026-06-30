@@ -11,9 +11,25 @@ Fluxo:
 
 Uso: python3 extrair_precos_compras.py [--dry-run] [--verbose]
 """
-import sys, json, time
+import sys, json, time, os
+from datetime import datetime
 from collections import defaultdict
 import psycopg2
+
+LOG_FILE = '/opt/nfelazarus/logs/historico_precos.jsonl'
+
+
+def log_preco(source, produto_cod, preco, detalhe=''):
+    entry = {
+        'ts': datetime.now().isoformat(),
+        'fonte': source,
+        'produto': produto_cod,
+        'preco': round(preco, 4),
+        'detalhe': detalhe,
+    }
+    os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
+    with open(LOG_FILE, 'a') as f:
+        f.write(json.dumps(entry) + '\n')
 
 ODOO_PG = dict(host='100.119.223.92', user='postgres', password='MULETA', dbname='odoo18')
 PDD_PG = dict(host='localhost', user='brasc1', password='mara5534', dbname='brascopper_pdd')
@@ -116,6 +132,8 @@ def main():
                     SET standard_price = %s::jsonb, write_date = NOW()
                     WHERE id = %s
                 """, (json_price, pp_id))
+                log_preco('compra_comcit', code, price,
+                          f'Media 12 meses de notas de compra')
             atualizados += 1
             if VERBOSE and atualizados <= 30:
                 print(f"  R$ {price:.4f}  {code}")

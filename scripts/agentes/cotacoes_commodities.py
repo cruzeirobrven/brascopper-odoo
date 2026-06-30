@@ -127,6 +127,26 @@ def fetch_metalprice(symbol='COPPER'):
         return None, None
 
 
+LOG_FILE = '/opt/nfelazarus/logs/historico_precos.jsonl'
+
+
+def log_preco(source, produto_cod, produto_nome, preco, detalhe=''):
+    """Appenda registro de preco no log JSONL."""
+    if DRY_RUN:
+        return
+    entry = {
+        'ts': datetime.now().isoformat(),
+        'fonte': source,
+        'produto': produto_cod,
+        'nome': produto_nome,
+        'preco': round(float(preco), 4),
+        'detalhe': detalhe,
+    }
+    os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
+    with open(LOG_FILE, 'a') as f:
+        f.write(json.dumps(entry) + '\n')
+
+
 def update_commodity_price(commodity_code, price, currency='BRL'):
     """Atualiza prec_commodity_price_period no banco."""
     import psycopg2
@@ -137,7 +157,7 @@ def update_commodity_price(commodity_code, price, currency='BRL'):
     try:
         # Busca commodity_id
         cur.execute(
-            "SELECT id FROM precificacao_commodity WHERE code = %s",
+            "SELECT id, name FROM precificacao_commodity WHERE code = %s",
             (commodity_code,)
         )
         row = cur.fetchone()
@@ -146,6 +166,7 @@ def update_commodity_price(commodity_code, price, currency='BRL'):
             return False
 
         commodity_id = row[0]
+        commodity_name = row[1]
         today = date.today()
 
         # Verifica se já existe preço para hoje
@@ -166,15 +187,18 @@ def update_commodity_price(commodity_code, price, currency='BRL'):
             print(f"  ✓ {commodity_code}: R$ {price:.4f}/kg (atualizado)")
         else:
             if not DRY_RUN:
-                cur.execute(
-                    "INSERT INTO prec_commodity_price_period "
-                    "(commodity_id, period, price, currency, active, source_file) "
-                    "VALUES (%s, %s, %s, %s, true, 'cotacoes_commodities.py')",
-                    (commodity_id, today, price, currency)
-                )
+                cur.execute("""
+                    INSERT INTO prec_commodity_price_period
+                    (commodity_id, period, price, currency, active,
+                     source_file, source_sheet, source_reference, notes)
+                    VALUES (%s, %s, %s, %s, true,
+                            'cotacoes_commodities.py', '', '', '')
+                """, (commodity_id, today, price, currency))
             print(f"  ✓ {commodity_code}: R$ {price:.4f}/kg (inserido)")
 
         conn.commit()
+        log_preco('commodities', commodity_code, commodity_name, price,
+                  f'Fonte: Google Finance/LME')
         return True
 
     except Exception as e:
@@ -249,8 +273,8 @@ def atualizar_proda_from_commodities():
 
     # Mapeamento: commodity_code → lista de (pi_px, pi_co)
     MAP = {
-        'COBRE': [('999', '010')],
-        'ALUMINIO': [('999', '050')],
+        'COBRE': [('999', '101'), ('999', '102')],
+        'ALUMINIO': [('999', '518'), ('999', '519'), ('999', '530'), ('999', '532')],
     }
 
     for commodity_code, produtos in MAP.items():
@@ -267,13 +291,16 @@ def atualizar_proda_from_commodities():
         today = date.today()
 
         for px, co in produtos:
+            cod = f'{px}.{co}'
             if not DRY_RUN:
                 cur.execute(
                     "UPDATE legacy_proda SET presi = %s, prdat = %s "
                     "WHERE pi_px = %s AND pi_co = %s",
                     (price, today, px, co)
                 )
-            print(f"  ✓ legacy_proda {px}.{co}: presi = {price}")
+                log_preco('commodities_legacy_proda', cod, commodity_code, price,
+                          f'Atualizado via commodity {commodity_code}')
+            print(f"  ✓ legacy_proda {cod}: presi = {price}")
 
     conn.commit()
     cur.close()
