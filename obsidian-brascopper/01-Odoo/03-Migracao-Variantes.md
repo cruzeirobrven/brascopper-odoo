@@ -38,9 +38,11 @@ Vincular produtos comerciais (código `XXX.XXX.XX`) como variantes de produtos t
 - **65.141 produtos comerciais** restantes (sem vínculo técnico)
 - **60.328 templates comerciais** desativados
 
-### Problemas
-- **13 registros** falharam por sufixo duplicado (mesmo IT_SX para mesmo template)
-- Resolução manual necessária
+### Problemas Resolvidos
+- **13 registros** falharam por sufixo duplicado — produtos 9xx/9xx já ocuparam o sufixo nos templates técnicos
+- **Resolução**: 13 produtos 0xx duplicados desativados (e seus templates comerciais órfãos)
+- Comandos executados em 2026-06-30: `UPDATE product_product SET active=false` + `UPDATE product_template SET active=false`
+- Os 13 produtos 9xx/9xx/9xx permanecem como variantes ativas sob os templates técnicos
 
 ## Produtos Técnicos Especiais
 - `001.512`: "Sem nome" — produtos sem descrição no catálogo técnico

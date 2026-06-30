@@ -1,0 +1,17 @@
+
+Thumbprint                                Subject
+----------                                -------
+2E360A067DFAD0A8636EEE683CAD779D2BF62141  CN=BRASCOPPER CBC BRASILEIRA DE CONDUTORES LTDA EM R:53606869000140, OU=AC...
+
+
+[OK] Certificado importado!
+
+[2/2] Obtendo numero de serie...
+
+
+
+Subject      : CN=BRASCOPPER CBC BRASILEIRA DE CONDUTORES LTDA EM R:53606869000140, OU=AC SyngularID Multipla,
+               OU=22655662000132, OU=Videoconferencia, OU=Certificado Digital PJ A1, O=ICP-Brasil, C=BR
+SerialNumber : 69BEDD369B1C27EAD89A
+NotAfter     : 11/03/2027 16:18:49
+Thumbprint   : 2E360A067DFAD0A8636EEE683CAD779D2BF62141
