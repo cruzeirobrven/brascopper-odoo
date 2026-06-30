@@ -1,0 +1,14 @@
+[Unit]
+Description=Trigger remoto para sync_all_custos
+After=network.target
+
+[Service]
+Type=simple
+User=emerson
+WorkingDirectory=/opt/nfelazarus
+ExecStart=/usr/bin/python3 /opt/nfelazarus/scripts/agentes/trigger_remoto.py --port 8802 --token EBk2PLWHiJEfNO4nK_riDQtlfkzHM4DHIMHfYOxFD3s
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
