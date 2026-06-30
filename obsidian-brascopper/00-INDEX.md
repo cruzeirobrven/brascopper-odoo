@@ -23,6 +23,7 @@ Hub de documentação da migração e integração entre ERP Brascopper, PDD (Dj
 - [[03-Agentes/01-Sync-Custos|Sync de Custos Odoo ← PDD]]
 - [[03-Agentes/02-Integracao-Odoo-PDD|Integração Odoo ↔ PDD]]
 - [[03-Agentes/03-ETL-BOM|ETL de BOMs]]
+- [[03-Agentes/03-Historico-Precos|Histórico de Preços Aplicados]]
 
 ### 04 — Bancos de Dados
 - [[04-Banco-Dados/01-Odoo-PG|Odoo PostgreSQL]]
