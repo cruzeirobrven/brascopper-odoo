@@ -12,7 +12,7 @@ Uso:
   python3 cotacoes_commodities.py [--dry-run]
   python3 cotacoes_commodities.py --interativo  (modo pergunta)
 """
-import os, sys, json, time
+import os, sys, json, time, re
 from datetime import date, datetime
 from urllib.request import Request, urlopen
 from urllib.error import URLError
@@ -46,42 +46,66 @@ def fetch_usd_brl():
         return None, None
 
 
-def fetch_lme_copper():
-    """Preço do cobre via múltiplas fontes gratuitas."""
-    fontes = [
-        ("TradingEconomics", "https://tradingeconomics.com/commodity/copper"),
-        ("Investing.com", "https://www.investing.com/commodities/copper"),
-    ]
-    for nome, url in fontes:
-        try:
-            req = Request(url, headers={
-                'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36',
-                'Accept': 'text/html,application/json,*/*',
-            })
-            with urlopen(req, timeout=10) as r:
-                html = r.read().decode()
-                # Procura padrões de preço (ex: 9,876.50 ou 9876.50)
-                import re
-                # Tenta JSON-LD ou price patterns
-                prices = re.findall(r'(\d{1,3}(?:,\d{3})*\.\d{2})', html)
-                for p in prices:
-                    val = float(p.replace(',', ''))
-                    # Preço do cobre está tipicamente entre 7000-11000 USD/ton
-                    if 7000 < val < 11000:
-                        return val
-        except Exception as e:
-            continue
-
-    # Fallback: busca em texto simples via GitHub (dados públicos)
+def fetch_commodity_google_finance(symbol, expected_min, expected_max):
+    """Preço de commodity via Google Finance."""
     try:
         req = Request(
-            'https://raw.githubusercontent.com/opencomex/commodity-prices/main/data/copper.json',
-            headers={'User-Agent': 'Mozilla/5.0'}
+            f'https://www.google.com/finance/quote/{symbol}',
+            headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36'}
         )
-        with urlopen(req, timeout=10) as r:
-            data = json.loads(r.read())
-            if 'price' in data:
-                return float(data['price'])
+        with urlopen(req, timeout=15) as r:
+            html = r.read().decode()
+            prices = re.findall(r'(\d{1,3}(?:,\d{3})*\.\d{2})', html)
+            for p in prices:
+                val = float(p.replace(',', ''))
+                if expected_min < val < expected_max:
+                    return val
+    except Exception as e:
+        print(f"  ⚠ Google Finance {symbol}: {e}")
+    return None
+
+
+def fetch_lme_copper():
+    """Preço do cobre via múltiplas fontes gratuitas."""
+    val = fetch_commodity_google_finance('COPPER:COMEX', 7000, 12000)
+    if val:
+        return val
+    # Fallback: Investing.com
+    try:
+        req = Request(
+            'https://www.investing.com/commodities/copper',
+            headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36'}
+        )
+        with urlopen(req, timeout=15) as r:
+            html = r.read().decode()
+            prices = re.findall(r'(\d{1,3}(?:,\d{3})*\.\d{2})', html)
+            for p in prices:
+                val = float(p.replace(',', ''))
+                if 7000 < val < 12000:
+                    return val
+    except Exception:
+        pass
+    return None
+
+
+def fetch_lme_aluminum():
+    """Preço do alumínio via múltiplas fontes gratuitas."""
+    val = fetch_commodity_google_finance('ALUMINUM:COMEX', 1500, 4000)
+    if val:
+        return val
+    # Fallback: TradingEconomics
+    try:
+        req = Request(
+            'https://tradingeconomics.com/commodity/aluminum',
+            headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36'}
+        )
+        with urlopen(req, timeout=15) as r:
+            html = r.read().decode()
+            prices = re.findall(r'(\d{1,3}(?:,\d{3})*\.\d{2})', html)
+            for p in prices:
+                val = float(p.replace(',', ''))
+                if 1500 < val < 4000:
+                    return val
     except Exception:
         pass
     return None
@@ -189,12 +213,12 @@ def main():
     print()
 
     # 3. Alumínio
-    print(">> Alumínio")
-    alumínio_preco = copper_usd * 0.3 if copper_usd else None
-    if alumínio_preco:
-        alumínio_brl = alumínio_preco * usd if usd else alumínio_preco
-        print(f"  ✓ Estimado: R$ {alumínio_brl / 1000:.4f}/kg (~30% do cobre)")
-        update_commodity_price('ALUMINIO', round(alumínio_brl / 1000, 4))
+    print(">> Alumínio (LME)")
+    al_usd = fetch_lme_aluminum()
+    if al_usd:
+        al_brl = al_usd * usd if usd else al_usd
+        print(f"  ✓ USD {al_usd:.2f}/ton → R$ {al_brl:.2f}/ton (R$ {al_brl/1000:.4f}/kg)")
+        update_commodity_price('ALUMINIO', round(al_brl / 1000, 4))
     else:
         print("  ✗ Não disponível")
     print()
