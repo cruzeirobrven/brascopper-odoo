@@ -157,17 +157,26 @@ def calcular_custo_bom(bom_lines, precos_mp, pesos_catalogo, precos_pp, pesos_bo
         tmpl_code = line.get('tmpl_code', '')
         comp_price = line['comp_standard_price']
 
-        if comp_price == 0 and comp_tmpl_code in precos_mp:
-            price_kg = precos_mp[comp_tmpl_code]
-            # Tenta peso da propria BOM no PDD (mais preciso, com unidade g→kg)
-            peso_bom = pesos_bom_pdd.get((tmpl_code, comp_tmpl_code), 0)
-            if peso_bom > 0:
-                comp_price = price_kg * peso_bom
+        # Se a BOM line está em gramas (peso_bom > 0), o componente é MP e seu
+        # preco é por kg. Deriva sempre de precos_mp para evitar
+        # qtd_gramas * preco_kg (inflacao 1000x).
+        peso_bom = pesos_bom_pdd.get((tmpl_code, comp_tmpl_code), 0)
+        if peso_bom > 0:
+            if comp_tmpl_code in precos_mp:
+                contrib = peso_bom * precos_mp[comp_tmpl_code]
+            elif comp_price > 0 and comp_tmpl_code in pesos_catalogo:
+                # Converte standard_price (R$/un) pra R$/kg via peso_catalogo,
+                # depois multiplica pelo peso real na BOM (kg)
+                contrib = peso_bom * (comp_price / pesos_catalogo[comp_tmpl_code])
             else:
+                contrib = qtd * comp_price
+        else:
+            if comp_price == 0 and comp_tmpl_code in precos_mp:
+                price_kg = precos_mp[comp_tmpl_code]
                 peso = pesos_catalogo.get(comp_tmpl_code, 0)
                 comp_price = price_kg * peso if peso > 0 else price_kg
+            contrib = qtd * comp_price
 
-        contrib = qtd * comp_price
         custo_total += contrib
 
         if VERBOSE:
