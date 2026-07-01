@@ -39,8 +39,13 @@ python3 /opt/nfelazarus/scripts/migracao/sync_custos_odoo.py
 echo ""
 
 # 7. Corrige produtos com BOM quebrada (protege contra códigos inválidos)
-echo ">>> 7/7 Correção de BOMs quebradas"
+echo ">>> 7/8 Correção de BOMs quebradas"
 PYTHONPATH=/home/emerson/brascopper_pdd python3 /opt/nfelazarus/scripts/agentes/fix_zero_cost_boms.py
+echo ""
+
+# 8. Preços de venda (list_price) a partir do histórico + piso de 30% sobre custo
+echo ">>> 8/8 Preços de Venda (list_price)"
+python3 /opt/nfelazarus/scripts/agentes/precos_venda.py --meses 24 --min-pedidos 5
 echo ""
 
 echo "============================================"
