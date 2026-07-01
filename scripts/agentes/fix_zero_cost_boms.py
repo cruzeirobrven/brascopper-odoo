@@ -96,6 +96,78 @@ DIRECT_ESTIMATES = {
     '203.006': dict(price=20.00, detail='BOM: 203.005 x1 a R$20'),
     '177.088': dict(price=1.86, detail='GRUPO COPPERINSTRU 4x2x0,50mm2 (igual 177.089)'),
     '177.920': dict(price=1.86, detail='GRUPO COPPERINSTRU 4x2x0,50mm2 ENF. (igual 177.089)'),
+    # === Batch: produtos a R$ 0,01 (BOM usa 999.997) ===
+    '016.107': dict(price=1.00, detail='Sem nome (estimativa generica)'),
+    '026.005': dict(price=1.66, detail='CABO COPPERFIX 2,50 mm2: 2.5mm2*8.96/1000*49.48*1.15*1.3'),
+    '060.188': dict(price=10.94, detail='CABO COPPERCON 11x1,50mm2: 11*1.5*8.96/1000*49.48*1.15*1.3'),
+    '062.030': dict(price=7.95, detail='CABO CONTROLE COPPERFIX EPR 2x6mm2: 2*6*8.96/1000*49.48*1.15*1.3'),
+    '073.248': dict(price=15.91, detail='CABO COPPERCON BFC FLEX 16x1,50mm2: 16*1.5*8.96/1000*49.48*1.15*1.3'),
+    '074.641': dict(price=0.66, detail='CABO COPPERINSTRU 4x2x0,50mm2: 8*0.5*8.96/1000*49.48*1.15*1.3'),
+    '080.990': dict(price=1.00, detail='Sem nome (estimativa generica)'),
+    '080.991': dict(price=1.00, detail='Sem nome (estimativa generica)'),
+    '085.157': dict(price=5.30, detail='CABO CopperCON SB CL2 8x1,00mm2: 8*1*8.96/1000*49.48*1.15*1.3'),
+    '177.033': dict(price=2.29, detail='VEIA COPPERINSTRU 2x1,50mm2: 2*1.5*8.96/1000*49.48*1.15*1.5'),
+    '177.164': dict(price=1.53, detail='GRUPO COPPERINSTRU 24x2x1,00mm2: 48*1*8.96/1000*49.48*1.15*1.5'),
+    '182.098': dict(price=9.18, detail='VEIA CB CONTROLE 2x6mm2: 2*6*8.96/1000*49.48*1.15*1.5'),
+    '182.162': dict(price=13.38, detail='VEIA CABO CONTROLE 7x2,50mm2: 7*2.5*8.96/1000*49.48*1.15*1.5'),
+    '182.164': dict(price=9.18, detail='VEIA CABO CONTROLE FLEX FIX 2x6mm2: 2*6*8.96/1000*49.48*1.15*1.5'),
+    '182.668': dict(price=18.35, detail='VEIA CONTROLE COPPERFIX BFC 16x1,50mm2: 16*1.5*8.96/1000*49.48*1.15*1.5'),
+    '183.214': dict(price=0.56, detail='VEIA CABO COPPERCON 1.00mm2 (CEGA): 1*8.96/1000*49.48*1.15*1.1'),
+    '183.215': dict(price=0.84, detail='VEIA CABO COPPERCON 1.50mm2 (CEGA): 1.5*8.96/1000*49.48*1.15*1.1'),
+    '183.267': dict(price=0.76, detail='VEIA CABO COPPERCON 1,00mm2 CL2 GRAVADO: 1*8.96/1000*49.48*1.15*1.5'),
+    '183.291': dict(price=7.65, detail='VEIA CABO COPPERCON BFC 4x2,5mm2: 4*2.5*8.96/1000*49.48*1.15*1.5'),
+    '183.304': dict(price=4.59, detail='VEIA CABO COPPERCON CL2 4x1,50mm2: 4*1.5*8.96/1000*49.48*1.15*1.5'),
+    '183.316': dict(price=1.59, detail='VEIA CABO COPPERCON 2.84mm2 (CEGA): 2.84*8.96/1000*49.48*1.15*1.1'),
+    '183.317': dict(price=1.99, detail='VEIA CABO COPPERCON 3.54mm2 (CEGA): 3.54*8.96/1000*49.48*1.15*1.1'),
+    '183.319': dict(price=0.81, detail='VEIA CABO COPPERCON 1,45mm2 (cega): 1.45*8.96/1000*49.48*1.15*1.1'),
+    '183.320': dict(price=1.16, detail='VEIA CABO COPPERCON 2,07mm2 (cega): 2.07*8.96/1000*49.48*1.15*1.1'),
+    '183.321': dict(price=0.90, detail='VEIA CABO COPPERCON 1,60mm2 (cega): 1.6*8.96/1000*49.48*1.15*1.1'),
+    '183.322': dict(price=1.28, detail='VEIA CABO COPPERCON 2,29mm2 (cega): 2.29*8.96/1000*49.48*1.15*1.1'),
+    '183.323': dict(price=0.97, detail='VEIA CABO COPPERCON 1,73mm2 (cega): 1.73*8.96/1000*49.48*1.15*1.1'),
+    '183.324': dict(price=1.39, detail='VEIA CABO COPPERCON 2,47mm2 (cega): 2.47*8.96/1000*49.48*1.15*1.1'),
+    '183.325': dict(price=1.22, detail='VEIA CABO COPPERCON 2,17mm2 (cega): 2.17*8.96/1000*49.48*1.15*1.1'),
+    '183.326': dict(price=1.74, detail='VEIA CABO COPPERCON 3,10mm2 (cega): 3.1*8.96/1000*49.48*1.15*1.1'),
+    '183.327': dict(price=1.39, detail='VEIA CABO COPPERCON 2,47mm2 (cega): 2.47*8.96/1000*49.48*1.15*1.1'),
+    '183.328': dict(price=1.99, detail='VEIA CABO COPPERCON 3,54mm2 (cega): 3.54*8.96/1000*49.48*1.15*1.1'),
+    '183.329': dict(price=1.59, detail='VEIA CABO COPPERCON 2,84mm2 (cega): 2.84*8.96/1000*49.48*1.15*1.1'),
+    '183.330': dict(price=2.27, detail='VEIA CABO COPPERCON 4,05mm2 (cega): 4.05*8.96/1000*49.48*1.15*1.1'),
+    '183.331': dict(price=1.97, detail='VEIA CABO COPPERCON 3,51mm2 (cega): 3.51*8.96/1000*49.48*1.15*1.1'),
+    '183.332': dict(price=2.81, detail='VEIA CABO COPPERCON 5,01mm2 (cega): 5.01*8.96/1000*49.48*1.15*1.1'),
+    '183.333': dict(price=2.53, detail='VEIA CABO COPPERCON 4,52mm2 (cega): 4.52*8.96/1000*49.48*1.15*1.1'),
+    '183.334': dict(price=3.62, detail='VEIA CABO COPPERCON 6,46mm2 (cega): 6.46*8.96/1000*49.48*1.15*1.1'),
+    '183.351': dict(price=3.82, detail='VEIA CABO COPPERCON CL2 2x2,50mm2: 2*2.5*8.96/1000*49.48*1.15*1.5'),
+    '183.896': dict(price=18.35, detail='VEIA CABO COPPERCON CL2 4x6mm2: 4*6*8.96/1000*49.48*1.15*1.5'),
+    '183.908': dict(price=3.82, detail='VEIA CABO COPPERCON 2x2,50mm2 BFA ENF.: 2*2.5*8.96/1000*49.48*1.15*1.5'),
+    '183.941': dict(price=17.21, detail='VEIA CABO COPPERCON 15x1,5: 15*1.5*8.96/1000*49.48*1.15*1.5'),
+    '184.017': dict(price=7.65, detail='Veia Cabo Multiplexado 10,0mm2: 10*8.96/1000*49.48*1.15*1.5'),
+    '184.046': dict(price=5.74, detail='VEIA CABO COPPERFIX EPR 5x1,50mm2 ENF.: 5*1.5*8.96/1000*49.48*1.15*1.5'),
+    '184.600': dict(price=4.55, detail='Veia Cabo COPPERSTEEL CAC 35mm2 Isolada: 35*6.5/1000*20*1.15'),
+    '194.153': dict(price=6.56, detail='CABO COBRE 7 FIOS MD 1,53mm: 7*pi*(0.765^2)*8.96/1000*49.48*1.15'),
+    '194.818': dict(price=64.72, detail='CABO COBRE 37 FIOS MD 2,09mm: 37*pi*(1.045^2)*8.96/1000*49.48*1.15'),
+    '196.022': dict(price=0.72, detail='CORDA COBRE NU MOLE 22x0,285mm: 22*pi*(0.1425^2)*8.96/1000*49.48*1.15'),
+    '196.132': dict(price=4.29, detail='CORDA COBRE NU MOLE 132x0,285: 132*pi*(0.1425^2)*8.96/1000*49.48*1.15'),
+    '196.222': dict(price=7.22, detail='CORDA COBRE NU MOLE 222x0,285: 222*pi*(0.1425^2)*8.96/1000*49.48*1.15'),
+    '196.226': dict(price=32.84, detail='CORDA COBRE NU MOLE 226x0,285mm2: 226*0.285*8.96/1000*49.48*1.15'),
+    '196.510': dict(price=16.59, detail='CORDA COBRE NU MOLE 510x0,285mm: 510*pi*(0.1425^2)*8.96/1000*49.48*1.15'),
+    '197.350': dict(price=18.16, detail='CORDA COBRE NU MOLE 350x0,360mm: 350*pi*(0.18^2)*8.96/1000*49.48*1.15'),
+    '197.352': dict(price=18.27, detail='CORDA COBRE NU MOLE 352x0,360mm: 352*pi*(0.18^2)*8.96/1000*49.48*1.15'),
+    '197.596': dict(price=30.93, detail='CORDA COBRE NU MOLE 596x0,360mm: 596*pi*(0.18^2)*8.96/1000*49.48*1.15'),
+    '197.633': dict(price=32.85, detail='CORDA COBRE NU MOLE 633x0,360mm: 633*pi*(0.18^2)*8.96/1000*49.48*1.15'),
+    '197.895': dict(price=139.08, detail='CORDA COBRE NU MOLE 2680x0,360: 2680*pi*(0.18^2)*8.96/1000*49.48*1.15'),
+    '198.353': dict(price=72.81, detail='CORDA COBRE NU MOLE 357x0,400mm2: 357*0.4*8.96/1000*49.48*1.15'),
+    '198.355': dict(price=72.60, detail='CORDA COBRE NU MOLE 356x0,400mm2: 356*0.4*8.96/1000*49.48*1.15'),
+    '198.359': dict(price=101.97, detail='CORDA COBRE NU MOLE 500x0,400mm2: 500*0.4*8.96/1000*49.48*1.15'),
+    '231.999': dict(price=0.04, detail='FITA DE ALUMINIO 1,2mm: pi*(0.6^2)*2.7/1000*9.68*1.15*1.2'),
+    '316.107': dict(price=1.00, detail='Sem nome (estimativa generica)'),
+    '193.008': dict(price=0.17, detail='FIO DE COBRE 0,652 mm: pi*(0.326^2)*8.96/1000*49.48*1.15'),
+    '194.288': dict(price=23.24, detail='CABO COBRE 7 FIOS MD 2,88mm: 7*pi*(1.44^2)*8.96/1000*49.48*1.15'),
+    '195.096': dict(price=10.77, detail='CABO COBRE MOLE 7 FIOS 1,96mm COMPACTADO: 7*pi*(0.98^2)*8.96/1000*49.48*1.15'),
+    '198.505': dict(price=0.11, detail='CONJ. COBRE NU MOLE 7x0,200mm: 7*pi*(0.1^2)*8.96/1000*49.48*1.15'),
+    '198.841': dict(price=0.02, detail='FIO DE LATAO ZF SACHS 0,200mm: 0.000279*25*1.15'),
+    '999.002': dict(price=15.00, detail='FITA DE ALUMINIO (legacy_proda.presi)'),
+    '999.381': dict(price=12.00, detail='MASTER PARA POLIETILENO PRETO (legacy_proda.presi)'),
+    '999.987': dict(price=5.00, detail='POLIETILENO RECUPERADO (legacy_proda.presi)'),
+    '999.988': dict(price=4.00, detail='PVC RECUPERADO (legacy_proda.presi)'),
 }
 
 
@@ -179,21 +251,21 @@ def main():
     print(f"  Total inseridos/atualizados: {insert_count}")
 
     # ── Parte 2: Estimar produtos com placeholder 999.997 ou BOM quebrada ──
-    print("\n>>> 2/3 Estimativa direta para produtos com BOM usando placeholder")
+    print("\n>>> 2/5 Estimativa direta para produtos com BOM usando placeholder")
+
+    fixados_parte2 = {}
     
     # Busca produtos Odoo sem preco
     cur_odoo.execute("""
         SELECT DISTINCT pt.default_code, pt.id, pt.name
         FROM product_template pt
+        JOIN product_product pp ON pp.product_tmpl_id = pt.id AND pp.active = true
         WHERE pt.active = true
         AND pt.default_code IS NOT NULL AND pt.default_code != ''
         AND EXISTS (SELECT 1 FROM mrp_bom b WHERE b.product_tmpl_id = pt.id AND b.active = true)
-        AND NOT EXISTS (
-            SELECT 1 FROM product_product pp 
-            WHERE pp.product_tmpl_id = pt.id AND pp.active = true
-            AND pp.standard_price IS NOT NULL
-            AND pp.standard_price::text NOT IN ('null', '0', '[0,1]')
-        )
+        AND (pp.standard_price IS NULL
+             OR pp.standard_price::text IN ('null', '0', '[0,1]')
+             OR (pp.standard_price->>0)::numeric < 0.10)
         ORDER BY pt.default_code
     """)
     zero_products = list(cur_odoo.fetchall())
@@ -254,6 +326,7 @@ def main():
                         WHERE product_tmpl_id = %s AND active = true
                     """, (json_price, tmpl_id))
                     log_preco('fix_direta', tmpl_code, custo, detalhe)
+                    fixados_parte2[tmpl_code] = (custo, detalhe)
                 estimados += 1
                 if VERBOSE:
                     print(f"  ✓ R$ {custo:.4f}  {tmpl_code}  ({detalhe})")
@@ -287,6 +360,8 @@ def main():
                 """, (json_price, tmpl_id))
                 log_preco('fix_tb800', tmpl_code, custo,
                           f'tb800={peso_kg*1000:.0f}g/m x R${price_kg}/kg x {MARKUP}')
+                fixados_parte2[tmpl_code] = (custo,
+                    f'tb800={peso_kg*1000:.0f}g/m x R${price_kg}/kg x {MARKUP}')
             estimados += 1
             if VERBOSE:
                 print(f"  ✓ R$ {custo:.4f}  {tmpl_code}  ({peso_kg*1000:.0f}g/m x R${price_kg})")
@@ -305,7 +380,7 @@ def main():
     print(f"  Erros: {erros}")
 
     # ── Parte 3: Recalcular BOMs via sync_custos_odoo ──
-    print("\n>>> 3/3 Recalculando BOMs via sync_custos_odoo...")
+    print("\n>>> 3/5 Recalculando BOMs via sync_custos_odoo...")
     if not DRY_RUN:
         import subprocess
         result = subprocess.run(
@@ -316,15 +391,15 @@ def main():
         if result.stderr:
             print("STDERR:", result.stderr[-500:])
 
-    # ── Parte 4: Reaplicar estimativas diretas (BOM calc sobrescreve com BOM quebrada) ──
-    print("\n>>> 4/4 Reaplicando estimativas diretas (protegendo BOMs quebradas)...")
+    # ── Parte 4: Reaplicar estimativas (BOM calc sobrescreve produtos com BOM quebrada) ──
+    print("\n>>> 4/5 Reaplicando estimativas (protegendo produtos com BOM quebrada)...")
     if not DRY_RUN:
         cur_odoo.execute(
             "SELECT id FROM res_currency WHERE active = true ORDER BY id LIMIT 1"
         )
         currency_id_4 = cur_odoo.fetchone()[0]
         reaplicados = 0
-        for cod, info in sorted(DIRECT_ESTIMATES.items()):
+        for cod, (custo, detalhe) in sorted(fixados_parte2.items()):
             px, co = cod.split('.')
             cur_odoo.execute("""
                 SELECT pt.id FROM product_template pt
@@ -334,15 +409,13 @@ def main():
             if not row:
                 continue
             tmpl_id = row[0]
-            custo = info['price']
-            detalhe = info['detail']
             json_price = json.dumps([custo, currency_id_4])
             cur_odoo.execute("""
                 UPDATE product_product 
                 SET standard_price = %s::jsonb, write_date = NOW()
                 WHERE product_tmpl_id = %s AND active = true
             """, (json_price, tmpl_id))
-            log_preco('fix_direta_after_bom', cod, custo, detalhe)
+            log_preco('fix_pos_bom', cod, custo, detalhe)
             reaplicados += 1
             if VERBOSE:
                 print(f"  ✓ {cod}: R$ {custo:.2f} ({detalhe})")
@@ -350,6 +423,54 @@ def main():
         print(f"  Reaplicados: {reaplicados}")
     else:
         print("  (dry-run — pule reaplicacao)")
+
+    # ── Parte 5: Precos para materiais 999.xxx sem BOM ──
+    print("\n>>> 5/5 Precos de materiais 999.xxx (legacy_proda → Odoo)...")
+    cur_pdd.execute("""
+        SELECT pi_px, pi_co, presi FROM legacy_proda
+        WHERE pi_px = '999' AND presi > 0
+    """)
+    precos_pdd = {f"{px}.{co}": float(presi) for px, co, presi in cur_pdd}
+
+    if not DRY_RUN:
+        cur_odoo.execute(
+            "SELECT id FROM res_currency WHERE active = true ORDER BY id LIMIT 1"
+        )
+        currency_id = cur_odoo.fetchone()[0]
+        atualizados = 0
+        for cod, presi in sorted(precos_pdd.items()):
+            cur_odoo.execute("""
+                SELECT pt.id FROM product_template pt
+                WHERE pt.default_code = %s AND pt.active = true
+            """, (cod,))
+            row = cur_odoo.fetchone()
+            if not row:
+                continue
+            tmpl_id = row[0]
+            cur_odoo.execute("""
+                SELECT COUNT(*) FROM product_product
+                WHERE product_tmpl_id = %s AND active = true
+                  AND (standard_price IS NULL
+                       OR standard_price::text IN ('null', '0', '[0,1]')
+                       OR (standard_price->>0)::numeric < 0.10)
+            """, (tmpl_id,))
+            need_update = cur_odoo.fetchone()[0]
+            if need_update == 0:
+                continue
+            json_price = json.dumps([presi, currency_id])
+            cur_odoo.execute("""
+                UPDATE product_product
+                SET standard_price = %s::jsonb, write_date = NOW()
+                WHERE product_tmpl_id = %s AND active = true
+            """, (json_price, tmpl_id))
+            log_preco('fix_legacy_raw', cod, presi, f'legacy_proda.presi = {presi}')
+            atualizados += 1
+            if VERBOSE:
+                print(f"  ✓ {cod}: R$ {presi:.2f}")
+        conn_odoo.commit()
+        print(f"  Materiais 999.xxx atualizados: {atualizados}")
+    else:
+        print(f"  Materiais 999.xxx com presi: {len(precos_pdd)} (dry-run)")
 
     elapsed = time.time() - t0
     print()
