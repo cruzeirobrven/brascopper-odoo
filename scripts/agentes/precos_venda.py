@@ -68,17 +68,19 @@ def main():
     cur_odoo = conn_odoo.cursor()
 
     # ── Passo 1: Buscar historico de vendas do legado ──
-    print(f"\n>>> 1/4 Agregando vendas desde {data_corte}...")
+    print(f"\n>>> 1/4 Agregando vendas desde {data_corte} (min {MIN_PEDIDOS} pedidos)...")
     cur_pdd.execute("""
         SELECT i.it_px, i.it_co,
             SUM(i.valor_total) AS receita_total,
             SUM(i.quantidade) AS qtd_total,
             COUNT(*) AS num_pedidos,
-            AVG(i.valor_unitario) AS preco_medio_simples
+            AVG(i.valor_unitario) AS preco_medio_simples,
+            PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY i.valor_unitario) AS mediana
         FROM com_item_pedido_venda i
         JOIN com_pedido_venda p ON p.id = i.pedido_id
         WHERE p.ativo = true AND i.ativo = true
           AND p.data >= %s
+          AND i.valor_unitario > 0.01
         GROUP BY i.it_px, i.it_co
         HAVING COUNT(*) >= %s AND SUM(i.quantidade) > 0 AND SUM(i.valor_total) > 0
         ORDER BY SUM(i.valor_total) DESC
@@ -88,11 +90,15 @@ def main():
     preco_medio = {}  # codigo -> (preco_ponderado, qtd, pedidos, descricao)
     catalogo = []
 
-    for it_px, it_co, receita, qtd, pedidos, media_simples in rows:
+    MARKUP_MINIMO = 1.30
+
+    for it_px, it_co, receita, qtd, pedidos, media_simples, mediana in rows:
         cod = f"{it_px}.{it_co}"
         preco_pond = round(receita / qtd, 4) if qtd > 0 else 0
+        mediana = round(mediana, 4) if mediana else 0
         preco_medio[cod] = {
             'preco': preco_pond,
+            'mediana': mediana,
             'qtd': qtd,
             'pedidos': pedidos,
             'media_simples': round(media_simples, 4) if media_simples else 0,
@@ -147,12 +153,20 @@ def main():
                 print(f"  ? {cod}: nao encontrado no Odoo (sem venda)")
             continue
 
-        preco = float(info['preco'])
         produto = odoo_produtos[cod]
+        preco_hist = float(info['preco'])
+        preco_mediana = float(info['mediana'])
+        custo = float(produto['custo'])
 
-        # So atualiza se o preco for diferente (> 1% diff)
-        diff = abs(produto['list_price'] - preco)
-        if produto['list_price'] > 0 and diff / max(produto['list_price'], 0.01) < 0.01:
+        # Piso: 30% sobre custo. Usa mediana se media for outlier.
+        preco_final = max(preco_hist, custo * MARKUP_MINIMO) if custo > 0 else preco_hist
+        if preco_mediana > 0 and abs(preco_hist - preco_mediana) / max(preco_hist, 0.01) > 0.3:
+            preco_final = max(preco_mediana, custo * MARKUP_MINIMO) if custo > 0 else preco_mediana
+            if VERBOSE:
+                print(f"  ~ {cod}: media={preco_hist:.2f} difere da mediana={preco_mediana:.2f}, usando mediana")
+
+        diff = abs(produto['list_price'] - preco_final)
+        if produto['list_price'] > 0 and diff / max(produto['list_price'], 0.01) < 0.02:
             continue
 
         if not DRY_RUN:
@@ -160,17 +174,17 @@ def main():
                 UPDATE product_template
                 SET list_price = %s, write_date = NOW()
                 WHERE default_code = %s AND active = true
-            """, (preco, cod))
-            log_preco('venda_historico', cod, preco,
+            """, (preco_final, cod))
+            log_preco('venda_historico', cod, preco_final,
                       f'qtd={info["qtd"]:.0f} pedidos={info["pedidos"]} '
-                      f'media_simples={info["media_simples"]} '
-                      f'custo={produto["custo"]}')
+                      f'media={preco_hist} mediana={preco_mediana} '
+                      f'custo={custo}')
 
         atualizados += 1
         if VERBOSE:
-            margem = ((float(preco) - produto['custo']) / float(preco) * 100) if float(preco) > 0 and produto['custo'] > 0 else 0
-            print(f"  ✓ {cod}: R$ {produto['list_price']:.2f} → R$ {float(preco):.2f} "
-                  f"(custo=R${produto['custo']:.2f} margem={margem:.0f}% "
+            margem = ((preco_final - custo) / preco_final * 100) if preco_final > 0 and custo > 0 else 0
+            print(f"  ✓ {cod}: R$ {produto['list_price']:.2f} → R$ {preco_final:.2f} "
+                  f"(custo=R${custo:.2f} margem={margem:.0f}% "
                   f"pedidos={info['pedidos']})")
 
     if not DRY_RUN:
@@ -179,23 +193,70 @@ def main():
     print(f"  Atualizados: {atualizados}")
     print(f"  Sem Odoo: {sem_odoo}")
 
+    # Fallback para produtos sem historico: list_price = custo * markup_min
+    print(">>> 3b/4 Aplicando markup minimo em produtos sem historico via SQL batch...")
+    if not DRY_RUN:
+        cur_odoo.execute("""
+            UPDATE product_template pt
+            SET list_price = ROUND(
+                (SELECT (pp.standard_price->>0)::numeric * %s
+                 FROM product_product pp
+                 WHERE pp.product_tmpl_id = pt.id AND pp.active = true
+                 LIMIT 1), 4),
+                write_date = NOW()
+            WHERE pt.active = true AND pt.default_code IS NOT NULL
+              AND pt.list_price < (
+                  SELECT (pp.standard_price->>0)::numeric * %s
+                  FROM product_product pp
+                  WHERE pp.product_tmpl_id = pt.id AND pp.active = true
+                  LIMIT 1
+              )
+              AND EXISTS (
+                  SELECT 1 FROM product_product pp
+                  WHERE pp.product_tmpl_id = pt.id AND pp.active = true
+                    AND (pp.standard_price->>0)::numeric > 0
+              )
+        """, (MARKUP_MINIMO, MARKUP_MINIMO))
+        fallback_count = cur_odoo.rowcount
+        conn_odoo.commit()
+    else:
+        # Estima quantos seriam afetados
+        cur_odoo.execute("""
+            SELECT COUNT(*) FROM product_template pt
+            WHERE pt.active = true AND pt.default_code IS NOT NULL
+              AND pt.list_price < (
+                  SELECT (pp.standard_price->>0)::numeric * %s
+                  FROM product_product pp
+                  WHERE pp.product_tmpl_id = pt.id AND pp.active = true
+                  LIMIT 1
+              )
+              AND EXISTS (
+                  SELECT 1 FROM product_product pp
+                  WHERE pp.product_tmpl_id = pt.id AND pp.active = true
+                    AND (pp.standard_price->>0)::numeric > 0
+              )
+        """, (MARKUP_MINIMO,))
+        fallback_count = cur_odoo.fetchone()[0]
+    print(f"  Fallback (markup minimo): {fallback_count}")
+
     # ── Passo 4: Gerar catalogo CSV dos top 100 ──
     print(">>> 4/4 Gerando catalogo CSV dos top 100 mais vendidos...")
     top_produtos = []
     for cod, info in sorted(preco_medio.items(), key=lambda x: x[1]['pedidos'], reverse=True)[:100]:
         prod_odoo = odoo_produtos.get(cod, {})
         desc, peso = descricoes.get(cod, ('', 0))
-        margem = ((info['preco'] - prod_odoo.get('custo', 0)) / info['preco'] * 100) \
-            if info['preco'] > 0 and prod_odoo.get('custo', 0) > 0 else 0
+        preco_val = float(info['preco'])
+        custo_val = float(prod_odoo.get('custo', 0))
+        margem = ((preco_val - custo_val) / preco_val * 100) if preco_val > 0 and custo_val > 0 else 0
         top_produtos.append({
             'codigo': cod,
             'descricao': desc or prod_odoo.get('name', ''),
-            'preco_venda': info['preco'],
-            'custo': prod_odoo.get('custo', 0),
+            'preco_venda': preco_val,
+            'custo': custo_val,
             'margem_%': round(margem, 1),
             'pedidos': info['pedidos'],
-            'quantidade': info['qtd'],
-            'peso_kg': peso,
+            'quantidade': float(info['qtd']),
+            'peso_kg': float(peso),
         })
 
     os.makedirs(os.path.dirname(CATALOGO_FILE), exist_ok=True)
