@@ -46,6 +46,30 @@ def conectar_nfehub():
     return psycopg2.connect(**NFEHUB_PG)
 
 
+def carregar_pesos_bom_pdd():
+    """Carrega peso_unit_kg de cada linha da BOM no PDD para conversao g→kg."""
+    try:
+        conn_pdd = psycopg2.connect(**PDD_PG)
+        cur_pdd = conn_pdd.cursor()
+        cur_pdd.execute("""
+            SELECT prod_px, prod_co, comp_px, comp_co, unidade, peso_unit_kg
+            FROM pro_bom_cabo_legacy
+            WHERE unidade = 'g' AND peso_unit_kg > 0
+        """)
+        pesos = {}
+        for prod_px, prod_co, comp_px, comp_co, unidade, peso in cur_pdd:
+            prod_cod = f"{prod_px}.{prod_co}"
+            comp_cod = f"{comp_px}.{comp_co}"
+            key = (prod_cod, comp_cod)
+            pesos[key] = float(peso)
+        cur_pdd.close()
+        conn_pdd.close()
+        return pesos
+    except Exception as e:
+        print(f"  AVISO: nao foi possivel carregar pesos da BOM PDD: {e}")
+        return {}
+
+
 def carregar_precos_componentes(cur_nfehub):
     # Tenta primeiro do brascopper_pdd (legacy_proda - dados mais completos)
     try:
@@ -123,19 +147,25 @@ def carregar_standard_prices_odoo(cur_odoo):
     return precos
 
 
-def calcular_custo_bom(bom_lines, precos_mp, pesos_catalogo, precos_pp):
+def calcular_custo_bom(bom_lines, precos_mp, pesos_catalogo, precos_pp, pesos_bom_pdd):
     """Calcula o custo total de uma BOM."""
     custo_total = 0.0
     detalhes = []
     for line in bom_lines:
         qtd = float(line['product_qty'])
         comp_tmpl_code = line['comp_tmpl_code']
+        tmpl_code = line.get('tmpl_code', '')
         comp_price = line['comp_standard_price']
 
         if comp_price == 0 and comp_tmpl_code in precos_mp:
-            peso = pesos_catalogo.get(comp_tmpl_code, 0)
             price_kg = precos_mp[comp_tmpl_code]
-            comp_price = price_kg * peso if peso > 0 else price_kg
+            # Tenta peso da propria BOM no PDD (mais preciso, com unidade g→kg)
+            peso_bom = pesos_bom_pdd.get((tmpl_code, comp_tmpl_code), 0)
+            if peso_bom > 0:
+                comp_price = price_kg * peso_bom
+            else:
+                peso = pesos_catalogo.get(comp_tmpl_code, 0)
+                comp_price = price_kg * peso if peso > 0 else price_kg
 
         contrib = qtd * comp_price
         custo_total += contrib
@@ -164,6 +194,9 @@ def main():
     print(f"Preços MP (erp_precos_mp): {len(precos_mp)} produtos")
     print(f"Pesos catálogo técnico: {len(pesos_catalogo)} produtos")
 
+    pesos_bom_pdd = carregar_pesos_bom_pdd()
+    print(f"Pesos BOM PDD (g→kg): {len(pesos_bom_pdd)} linhas")
+
     conn_odoo = conectar_odoo()
     cur_odoo = conn_odoo.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     boms = carregar_boms_odoo(cur_odoo)
@@ -185,7 +218,7 @@ def main():
         tmpl_id = lines[0]['product_tmpl_id']
         tmpl_code = lines[0]['tmpl_code']
 
-        custo, detalhes = calcular_custo_bom(lines, precos_mp, pesos_catalogo, precos_pp={})
+        custo, detalhes = calcular_custo_bom(lines, precos_mp, pesos_catalogo, precos_pp={}, pesos_bom_pdd=pesos_bom_pdd)
 
         if custo == 0:
             sem_preco += 1
