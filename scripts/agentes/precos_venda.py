@@ -194,7 +194,8 @@ def main():
     print(f"  Sem Odoo: {sem_odoo}")
 
     # Fallback para produtos sem historico: list_price = custo * markup_min
-    print(">>> 3b/4 Aplicando markup minimo em produtos sem historico via SQL batch...")
+    print(">>> 3b/4 Aplicando markup minimo e teto via SQL batch...")
+    MARCAO_MAXIMO = 5  # se list_price > custo * 5, eh suspeito (dado antigo/errado)
     if not DRY_RUN:
         cur_odoo.execute("""
             UPDATE product_template pt
@@ -205,39 +206,58 @@ def main():
                  LIMIT 1), 4),
                 write_date = NOW()
             WHERE pt.active = true AND pt.default_code IS NOT NULL
-              AND pt.list_price < (
-                  SELECT (pp.standard_price->>0)::numeric * %s
-                  FROM product_product pp
-                  WHERE pp.product_tmpl_id = pt.id AND pp.active = true
-                  LIMIT 1
+              AND (
+                  -- Abaixo do piso minimo
+                  pt.list_price < (
+                      SELECT (pp.standard_price->>0)::numeric * %s
+                      FROM product_product pp
+                      WHERE pp.product_tmpl_id = pt.id AND pp.active = true
+                      LIMIT 1
+                  )
+                  OR
+                  -- Acima do teto (preco antigo de custo inflado que nunca foi atualizado)
+                  pt.list_price > (
+                      SELECT (pp.standard_price->>0)::numeric * %s
+                      FROM product_product pp
+                      WHERE pp.product_tmpl_id = pt.id AND pp.active = true
+                      LIMIT 1
+                  )
               )
               AND EXISTS (
                   SELECT 1 FROM product_product pp
                   WHERE pp.product_tmpl_id = pt.id AND pp.active = true
                     AND (pp.standard_price->>0)::numeric > 0
               )
-        """, (MARKUP_MINIMO, MARKUP_MINIMO))
+        """, (MARKUP_MINIMO, MARKUP_MINIMO, MARCAO_MAXIMO))
         fallback_count = cur_odoo.rowcount
         conn_odoo.commit()
     else:
-        # Estima quantos seriam afetados
         cur_odoo.execute("""
             SELECT COUNT(*) FROM product_template pt
             WHERE pt.active = true AND pt.default_code IS NOT NULL
-              AND pt.list_price < (
-                  SELECT (pp.standard_price->>0)::numeric * %s
-                  FROM product_product pp
-                  WHERE pp.product_tmpl_id = pt.id AND pp.active = true
-                  LIMIT 1
+              AND (
+                  pt.list_price < (
+                      SELECT (pp.standard_price->>0)::numeric * %s
+                      FROM product_product pp
+                      WHERE pp.product_tmpl_id = pt.id AND pp.active = true
+                      LIMIT 1
+                  )
+                  OR
+                  pt.list_price > (
+                      SELECT (pp.standard_price->>0)::numeric * %s
+                      FROM product_product pp
+                      WHERE pp.product_tmpl_id = pt.id AND pp.active = true
+                      LIMIT 1
+                  )
               )
               AND EXISTS (
                   SELECT 1 FROM product_product pp
                   WHERE pp.product_tmpl_id = pt.id AND pp.active = true
                     AND (pp.standard_price->>0)::numeric > 0
               )
-        """, (MARKUP_MINIMO,))
+        """, (MARKUP_MINIMO, MARCAO_MAXIMO))
         fallback_count = cur_odoo.fetchone()[0]
-    print(f"  Fallback (markup minimo): {fallback_count}")
+    print(f"  Fallback (piso+teto): {fallback_count}")
 
     # ── Passo 4: Gerar catalogo CSV dos top 100 ──
     print(">>> 4/4 Gerando catalogo CSV dos top 100 mais vendidos...")

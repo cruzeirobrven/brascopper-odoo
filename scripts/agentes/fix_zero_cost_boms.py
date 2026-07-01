@@ -43,7 +43,7 @@ ESTIMATED_PRICES = {
 # Tipo de material por prefixo de codigo para estimativa via tb800
 MATERIAL_CLASS = {
     'copper': {
-        'codes': ['191', '192', '193', '194', '195', '196', '197', '198'],
+        'codes': ['001', '191', '192', '193', '194', '195', '196', '197', '198'],
         'price_kg': 49.48,  # cobre
     },
     'steel': {
