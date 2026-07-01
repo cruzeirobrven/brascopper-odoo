@@ -29,13 +29,13 @@ MARKUP = 1.15
 # Precos estimados para materiais 999.xxx sem cotacao no legado
 # Fonte: estimativa baseada em materiais similares + conversa com usuario
 ESTIMATED_PRICES = {
-    ('999', '988'): ('PVC - RECUPERADO (BRASCOPPER)', 4.44),   # 60% do PVC virgem (7.40)
-    ('999', '100'): ('CORANTE P/ PE', 20.00),                   # similar a master PVC (~18-25)
-    ('999', '090'): ('CORANTE P/ PVC', 20.00),                  # idem
-    ('999', '099'): ('MASTER XLPE-UV/TR (ANTITRACKING)', 28.71),# similar 999.091
-    ('999', '381'): ('MASTER PARA POLIETILENO PRETO', 17.00),   # similar 999.410 PVC PRETO
-    ('999', '987'): ('POLIETILENO RECUPERADO', 4.00),           # 60% do PE virgem (6.68)
-    ('999', '002'): ('FITA DE ALUMINIO', 15.00),                # aluminio + processamento
+    ('999', '988'): ('PVC - RECUPERADO (BRASCOPPER)', 4.00),    # =999.079 PVC RECUP legado (R$ 4,00)
+    ('999', '100'): ('CORANTE P/ PE', 26.30),                   # media masters XLPE/PE (19-46)
+    ('999', '090'): ('CORANTE P/ PVC', 15.78),                  # media masters PVC (10-27)
+    ('999', '099'): ('MASTER XLPE-UV/TR (ANTITRACKING)', 23.41),# =999.091 MASTER CATALITICO XLPE
+    ('999', '381'): ('MASTER PARA POLIETILENO PRETO', 12.00),   # ~999.410 MASTER PVC PRETO (R$ 10,62)
+    ('999', '987'): ('POLIETILENO RECUPERADO', 5.00),           # ~55% do LDPE (R$ 9,26)
+    ('999', '002'): ('FITA DE ALUMINIO', 15.00),                # alumínio + processamento (~AL R$ 12-14)
     ('999', '996'): ('SOMENTE MAO DE OBRA', 10.00),             # custo Mao-de-obra/kg
     ('999', '997'): ('MATERIAL S ID (PLACEHOLDER)', 0.01),      # preco simbolico
 }
@@ -147,9 +147,13 @@ def main():
         current = float(row[0]) if row else 0
 
         if current > 0 and cod != '999.997':
-            if VERBOSE:
-                print(f"  - {cod}: ja tem presi={current:.2f} (pulado)")
-            continue
+            if abs(current - price) < 0.01:
+                if VERBOSE:
+                    print(f"  - {cod}: presi={current:.2f} ok (pulado)")
+                continue
+            else:
+                if VERBOSE:
+                    print(f"  ~ {cod}: presi={current:.2f} → {price:.2f} (atualizado)")
 
         if not DRY_RUN:
             if row:
